@@ -1,5 +1,7 @@
 #include "xcoder-opus_internal.h"
 
+#include "../include/xcoder-opus.h"
+
 int64_t pts = 0;
 
 int transcode(const char *input_file, const char *output_file,
