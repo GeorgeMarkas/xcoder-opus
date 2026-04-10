@@ -1,0 +1,12 @@
+#include "xcoder-opus_internal.h"
+
+int write_output_file_header(AVFormatContext *output_format_ctx) {
+    const int ret = avformat_write_header(output_format_ctx, NULL);
+    if (ret < 0) {
+        fprintf(stderr, "Could not write output file header (error '%s')\n",
+                av_err2str(ret));
+        return ret;
+    }
+
+    return 0;
+}

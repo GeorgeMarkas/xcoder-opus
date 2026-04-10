@@ -2,7 +2,7 @@ SRC_DIR   := src
 INC_DIR   := include
 BUILD_DIR := build
 
-TARGET = $(BUILD_DIR)/transcoder
+TARGET = $(BUILD_DIR)/xcoder-opus
 
 SRC := $(wildcard $(SRC_DIR)/*.c)
 INC := $(addprefix -I, $(INC_DIR))
