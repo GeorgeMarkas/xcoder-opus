@@ -30,7 +30,7 @@ static int open_input_file(const char *filename, input_ctx *in) {
 
     // Get the correct stream index
     in->stream_idx = av_find_best_stream(in->fmt_ctx, AVMEDIA_TYPE_AUDIO,
-                                               -1, -1, &input_codec, 0);
+                                         -1, -1, &input_codec, 0);
     if (in->stream_idx < 0) {
         fprintf(stderr, "Could not find stream (error '%s')\n",
                 av_err2str(in->stream_idx));
@@ -402,7 +402,6 @@ static int add_samples_to_fifo(AVAudioFifo *fifo, uint8_t **converted_samples,
 static int read_decode_convert_and_store(AVAudioFifo *fifo, const input_ctx *in,
                                          const AVCodecContext *output_codec_ctx,
                                          SwrContext *swr, bool *finished) {
-
     AVFrame *input_frame = NULL;
     uint8_t **converted_samples = NULL;
     bool data_present;
@@ -414,10 +413,34 @@ static int read_decode_convert_and_store(AVAudioFifo *fifo, const input_ctx *in,
     if (decode_audio_frame(input_frame, in, &data_present, finished))
         goto cleanup;
 
-    // If we're at the end of file and there are no more samples in the
-    // decoder which are delayed, we're finished. We mustn't treat this
-    // as an error.
-    if (*finished) {
+    // Fully flush the resampler. Keep calling swr_convert with NULL
+    // until 0 is returned (nothing left to flush).
+    if (*finished && !data_present) {
+        int flushed;
+
+        do {
+            if (init_converted_samples(&converted_samples, output_codec_ctx,
+                                       output_codec_ctx->frame_size))
+                goto cleanup;
+
+            flushed = swr_convert(swr, converted_samples,
+                                  output_codec_ctx->frame_size, NULL, 0);
+            if (flushed < 0) {
+                ret = flushed;
+                fprintf(stderr, "Could not flush resampler (error '%s')\n",
+                        av_err2str(ret));
+                goto cleanup;
+            }
+
+            if (flushed > 0) {
+                if (add_samples_to_fifo(fifo, converted_samples, flushed))
+                    goto cleanup;
+            }
+
+            av_freep(&converted_samples[0]);
+            av_freep(&converted_samples);
+        } while (flushed > 0);
+
         ret = 0;
         goto cleanup;
     }
@@ -547,20 +570,31 @@ cleanup:
 static int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out) {
     AVFrame *output_frame = NULL;
 
-    // Use the maximum number of possible samples per frame.
+    // We always use the maximum number of possible samples per frame.
     // If there is less than the maximum possible frame size in the FIFO
-    // buffer, use this number instead.
-    const int frame_size = FFMIN(av_audio_fifo_size(fifo),
-                                 out->codec_ctx->frame_size);
+    // buffer, use this number instead. That being said, Opus expects
+    // the total length to be a multiple of the audio frames, so the
+    // last frame will most likely need to be padded with silence to
+    // make up a full frame, hence we're always allocating space for
+    // a full encoder frame.
+    const int fifo_size = av_audio_fifo_size(fifo);
+    const int real_samples = FFMIN(fifo_size, out->codec_ctx->frame_size);
 
     bool data_written;
 
-    if (init_output_frame(&output_frame, out->codec_ctx, frame_size))
+    if (init_output_frame(&output_frame, out->codec_ctx,
+                          out->codec_ctx->frame_size))
         return AVERROR_EXIT;
 
-    // Read as many samples from the FIFO buffer as required to fill the frame
-    if (av_audio_fifo_read(fifo, (void **) output_frame->data, frame_size) <
-        frame_size) {
+    // Pad the last "partial" frame with silence as to make sure it makes
+    // up a full audio frame for the reason mentioned above.
+    av_samples_set_silence(output_frame->data, 0,
+                           out->codec_ctx->frame_size,
+                           out->codec_ctx->ch_layout.nb_channels,
+                           out->codec_ctx->sample_fmt);
+
+    if (av_audio_fifo_read(fifo, (void **) output_frame->data, real_samples)
+        < real_samples) {
         fprintf(stderr, "Could not read data from FIFO\n");
         av_frame_free(&output_frame);
         return AVERROR_EXIT;
