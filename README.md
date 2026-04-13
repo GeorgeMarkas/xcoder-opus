@@ -25,13 +25,13 @@ Add the following to your `pom.xml`:
     </repository>
 </distributionManagement>
 
-<build>
-    <resources>
-        <resource>
-            <directory>src/main/resources</directory>
-        </resource>
-    </resources>
-</build>
+<dependencies>
+    <dependency>
+        <groupId>io.github.georgemarkas</groupId>
+        <artifactId>xcoder-opus</artifactId>
+        <version>0.0.3</version>
+    </dependency>
+</dependencies>
 ```
 
 > [!IMPORTANT]
