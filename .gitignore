@@ -3,7 +3,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
-src/main/java/Main.java
 CMakeLists.txt
 cmake-build-*/
 

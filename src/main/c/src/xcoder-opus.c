@@ -4,9 +4,9 @@
 int64_t pts = 0;
 
 JNIEXPORT jint JNICALL
-Java_org_example_xcoder_XcoderOpus_transcodeToOpus(JNIEnv *env,
-        __attribute__((unused)) jobject obj, const jstring j_input_file,
-        const jstring j_output_file, const jint j_output_bit_rate) {
+Java_io_github_georgemarkas_xcoder_XcoderOpus_transcodeToOpus(JNIEnv *env,
+        __attribute__((unused)) jobject obj, jstring j_input_file,
+        jstring j_output_file, jint j_output_bit_rate) {
 
     const char *input_file = (*env)->GetStringUTFChars(env, j_input_file, 0);
     const char *output_file = (*env)->GetStringUTFChars(env, j_output_file, 0);

@@ -1,4 +1,4 @@
-package org.example.xcoder;
+package io.github.georgemarkas.xcoder;
 
 import java.io.IOException;
 import java.io.InputStream;

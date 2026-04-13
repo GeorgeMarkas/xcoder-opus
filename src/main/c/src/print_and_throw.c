@@ -1,6 +1,6 @@
 #include "xcoder-opus_internal.h"
 
-#define EXCEPTION_CLASS "org/example/xcoder/TranscodingFailedException"
+#define EXCEPTION_CLASS "io/github/georgemarkas/xcoder/TranscodingFailedException"
 
 static void throw_exception(JNIEnv *env, const char* exc_msg);
 
