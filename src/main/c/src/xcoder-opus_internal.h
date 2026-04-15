@@ -31,7 +31,7 @@ extern int64_t pts;
 /**
  * Helper function to throw TranscodingFailedException from the C side.
  */
-void print_and_throw(JNIEnv *env, const char *error_msg, ...);
+void fmt_msg_throw(JNIEnv *env, const char *error_msg, ...);
 
 /**
  * Open an input file and the required decoder.

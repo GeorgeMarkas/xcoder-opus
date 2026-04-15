@@ -59,7 +59,7 @@ int read_decode_convert_and_store(AVAudioFifo *fifo, const input_ctx *in,
                                   output_codec_ctx->frame_size, NULL, 0);
             if (flushed < 0) {
                 ret = flushed;
-                print_and_throw(env, "Could not flush resampler (error '%s')\n",
+                fmt_msg_throw(env, "Could not flush resampler (error '%s')\n",
                                 av_err2str(ret));
                 goto cleanup;
             }
@@ -105,7 +105,7 @@ cleanup:
 
 static int init_input_frame(AVFrame **frame, JNIEnv *env) {
     if (!(*frame = av_frame_alloc())) {
-        print_and_throw(env, "Failed to allocate input frame\n");
+        fmt_msg_throw(env, "Failed to allocate input frame\n");
         return AVERROR(ENOMEM);
     }
 
@@ -134,7 +134,7 @@ static int decode_audio_frame(AVFrame *frame, const input_ctx *in,
             if (ret == AVERROR_EOF) {
                 *finished = true;
             } else {
-                print_and_throw(env, "Could not read frame (error '%s')\n",
+                fmt_msg_throw(env, "Could not read frame (error '%s')\n",
                                 av_err2str(ret));
                 goto cleanup;
             }
@@ -144,7 +144,7 @@ static int decode_audio_frame(AVFrame *frame, const input_ctx *in,
 
     // Send the audio frame stored in the temporary packet to the decoder
     if ((ret = avcodec_send_packet(in->codec_ctx, input_packet)) < 0) {
-        print_and_throw(
+        fmt_msg_throw(
             env, "Failed to send packet to the decoder (error '%s')\n",
             av_err2str(ret));
         goto cleanup;
@@ -168,7 +168,7 @@ static int decode_audio_frame(AVFrame *frame, const input_ctx *in,
     }
 
     if (ret < 0) {
-        print_and_throw(env, "Could not decode frame (error '%s')\n",
+        fmt_msg_throw(env, "Could not decode frame (error '%s')\n",
                         av_err2str(ret));
         goto cleanup;
     }
@@ -192,7 +192,7 @@ static int init_converted_samples(uint8_t ***converted_samples,
         output_codec_ctx->ch_layout.nb_channels,
         frame_size, output_codec_ctx->sample_fmt, 0);
     if (ret < 0) {
-        print_and_throw(
+        fmt_msg_throw(
             env, "Failed to allocate converted samples (error '%s')\n",
             av_err2str(ret));
         return ret;
@@ -208,7 +208,7 @@ static int add_samples_to_fifo(AVAudioFifo *fifo, uint8_t **converted_samples,
     const int ret = av_audio_fifo_realloc(fifo, av_audio_fifo_size(fifo)
                                                 + frame_size);
     if (ret < 0) {
-        print_and_throw(env, "Failed to reallocate FIFO (error '%s')\n",
+        fmt_msg_throw(env, "Failed to reallocate FIFO (error '%s')\n",
                         av_err2str(ret));
         return ret;
     }
@@ -216,7 +216,7 @@ static int add_samples_to_fifo(AVAudioFifo *fifo, uint8_t **converted_samples,
     // Store the new samples in the FIFO buffer
     if (av_audio_fifo_write(fifo, (void **) converted_samples,
                             frame_size) < frame_size) {
-        print_and_throw(env, "Could not write data to FIFO (error '%s')\n",
+        fmt_msg_throw(env, "Could not write data to FIFO (error '%s')\n",
                         av_err2str(ret));
         return AVERROR_EXIT;
     }
@@ -233,7 +233,7 @@ static int convert_samples(const uint8_t **input_data,
     const int ret = swr_convert(swr, converted_data, frame_size, input_data,
                                 frame_size);
     if (ret < 0) {
-        print_and_throw(env, "Could not convert samples (error '%s')\n",
+        fmt_msg_throw(env, "Could not convert samples (error '%s')\n",
                         av_err2str(ret));
         return ret;
     }

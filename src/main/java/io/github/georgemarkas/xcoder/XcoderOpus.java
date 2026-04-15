@@ -2,6 +2,9 @@ package io.github.georgemarkas.xcoder;
 
 import java.io.IOException;
 
+/**
+ * Opus transcoder class.
+ */
 @SuppressWarnings("unused")
 public class XcoderOpus {
 
@@ -24,4 +27,7 @@ public class XcoderOpus {
      * @param outputBitRate The output bit rate in Hz e.g. 128000.
      */
     public static native void transcodeToOpus(String inputFile, String outputFile, int outputBitRate) throws TranscodingFailedException;
+
+    // Keep Javadoc happy
+    private XcoderOpus() {}
 }

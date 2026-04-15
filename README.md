@@ -5,49 +5,25 @@ It uses [libav](https://trac.ffmpeg.org/wiki/Using%20libav*) and is adapted from
 
 ## Compatability
 - This project has been tested on JDK 21, though it most likely works with older versions too.
-- Only Linux x86-64 is supported for the time being.
-- The following libraries are required[^1].
+- Only Linux x86-64 is supported.
+- The following libraries are required (since the native code dynamically links to them)[^1].
     - libavcodec
     - libavformat
     - libavutil
     - libswresample
 
-[^1]: The project was compiled on Ubuntu 24.04 so your mileage may vary based on available package versions.
+[^1]: This project was compiled linking against libav 6.1.1, your mileage may vary
+depending on what versions of above dependencies you use.
 
 ## Install
 Add the following to your `pom.xml`:
 ```xml
-<distributionManagement>
-    <repository>
-        <id>github</id>
-        <name>GitHub Packages</name>
-        <url>https://maven.pkg.github.com/George-Markas/xcoder-opus</url>
-    </repository>
-</distributionManagement>
-
-<dependencies>
-    <dependency>
-        <groupId>io.github.georgemarkas</groupId>
-        <artifactId>xcoder-opus</artifactId>
-        <version>0.0.3</version>
-    </dependency>
-</dependencies>
+<dependency>
+    <groupId>io.github.georgemarkas</groupId>
+    <artifactId>xcoder-opus</artifactId>
+    <version>1.0.0</version>
+</dependency>
 ```
-
-> [!IMPORTANT]
-> Due to GitHub Packages not supporting unauthenticated reads, even for public repositories,
-> you will need to set your credentials in `~/.m2/settings.xml` like so:
-> ```xml
-> <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
->     <servers>
->         <server>
->             <id>github</id>
->             <username>YOUR_USERNAME</username>
->             <password>YOUR_PERSONAL_ACCESS_TOKEN_WITH_read:packages_SCOPE</password>
->         </server>
->     </servers>
-> </settings>
-> ```
 
 ## Usage
 ```java

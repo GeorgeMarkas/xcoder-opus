@@ -36,7 +36,7 @@ int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out,
 
     if (av_audio_fifo_read(fifo, (void **) output_frame->data, real_samples)
         < real_samples) {
-        print_and_throw(env, "Could not read data from FIFO\n");
+        fmt_msg_throw(env, "Could not read data from FIFO\n");
         av_frame_free(&output_frame);
         return AVERROR_EXIT;
     }
@@ -58,7 +58,7 @@ static int init_output_frame(AVFrame **frame,
     int ret;
 
     if (!(*frame = av_frame_alloc())) {
-        print_and_throw(env, "Failed to allocate output frame\n");
+        fmt_msg_throw(env, "Failed to allocate output frame\n");
         return AVERROR_EXIT;
     }
 
@@ -70,7 +70,7 @@ static int init_output_frame(AVFrame **frame,
 
     // Allocate the samples of the created frame
     if ((ret = av_frame_get_buffer(*frame, 0)) < 0) {
-        print_and_throw(
+        fmt_msg_throw(
             env, "Failed to allocate output frame samples (error '%s')",
             av_err2str(ret));
         av_frame_free(frame);

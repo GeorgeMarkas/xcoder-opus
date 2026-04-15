@@ -2,7 +2,7 @@
 
 int init_packet(AVPacket **packet, JNIEnv *env) {
     if (!(*packet = av_packet_alloc())) {
-        print_and_throw(env, "Failed to allocate packet");
+        fmt_msg_throw(env, "Failed to allocate packet");
         return AVERROR(ENOMEM);
     }
 

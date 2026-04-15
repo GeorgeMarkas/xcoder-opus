@@ -4,7 +4,7 @@
 
 static void throw_exception(JNIEnv *env, const char* exc_msg);
 
-void print_and_throw(JNIEnv *env, const char *error_msg, ...) {
+void fmt_msg_throw(JNIEnv *env, const char *error_msg, ...) {
     va_list args;
 
     va_start(args, error_msg);
@@ -41,6 +41,5 @@ static void throw_exception(JNIEnv *env, const char* exc_msg) {
         return;
     }
 
-    fprintf(stderr, "%s", exc_msg);
     (*env)->ThrowNew(env, exc_class, exc_msg);
 }

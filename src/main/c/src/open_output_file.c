@@ -10,7 +10,7 @@ int open_output_file(const char *filename, output_ctx *out,
 
     // Open the output file for writing
     if ((ret = avio_open(&output_io_ctx, filename, AVIO_FLAG_WRITE)) < 0) {
-        print_and_throw(env, "Could not open output file '%s' (error '%s')\n",
+        fmt_msg_throw(env, "Could not open output file '%s' (error '%s')\n",
                         filename, av_err2str(ret));
         return ret;
     }
@@ -18,7 +18,7 @@ int open_output_file(const char *filename, output_ctx *out,
     // Create the output format context
     ret = avformat_alloc_output_context2(&out->fmt_ctx, NULL, NULL, filename);
     if (ret < 0) {
-        print_and_throw(env,
+        fmt_msg_throw(env,
                         "Failed to allocate output format context (error '%s')\n",
                         av_err2str(ret));
         goto cleanup;
@@ -29,21 +29,21 @@ int open_output_file(const char *filename, output_ctx *out,
 
     // Find a codec for Opus
     if (!(output_codec = avcodec_find_encoder(AV_CODEC_ID_OPUS))) {
-        print_and_throw(env, "No suitable Opus encoder found\n");
+        fmt_msg_throw(env, "No suitable Opus encoder found\n");
         ret = AVERROR_ENCODER_NOT_FOUND;
         goto cleanup;
     }
 
     // Create a new audio stream in the output file container
     if (!(stream = avformat_new_stream(out->fmt_ctx, NULL))) {
-        print_and_throw(env, "Failed to create new audio stream\n");
+        fmt_msg_throw(env, "Failed to create new audio stream\n");
         ret = AVERROR(ENOMEM);
         goto cleanup;
     }
 
     // Create the encoding context
     if (!(out->codec_ctx = avcodec_alloc_context3(output_codec))) {
-        print_and_throw(env, "Failed to allocate encoding context\n");
+        fmt_msg_throw(env, "Failed to allocate encoding context\n");
         ret = AVERROR(ENOMEM);
         goto cleanup;
     }
@@ -66,14 +66,14 @@ int open_output_file(const char *filename, output_ctx *out,
 
     // Initialize the codec
     if ((ret = avcodec_open2(out->codec_ctx, output_codec, NULL)) < 0) {
-        print_and_throw(env, "Could not open output codec (error '%s')\n",
+        fmt_msg_throw(env, "Could not open output codec (error '%s')\n",
                         av_err2str(ret));
         goto cleanup;
     }
 
     ret = avcodec_parameters_from_context(stream->codecpar, out->codec_ctx);
     if (ret < 0) {
-        print_and_throw(env,
+        fmt_msg_throw(env,
                         "Failed to initialize stream parameters (error '%s')\n",
                         av_err2str(ret));
         goto cleanup;

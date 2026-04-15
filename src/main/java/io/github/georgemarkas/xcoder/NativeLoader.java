@@ -14,8 +14,8 @@ public class NativeLoader {
             throw new UnsupportedOperationException("Only Linux x86-64 is supported");
         }
 
-        String platformLibName = System.mapLibraryName(libName);
-        String libPath = "/native/linux-x86-64/" + platformLibName;
+        final String platformLibName = System.mapLibraryName(libName);
+        final String libPath = "/native/linux-x86-64/" + platformLibName;
 
         try (InputStream inputStream = NativeLoader.class.getResourceAsStream(libPath)) {
             if (inputStream == null) {

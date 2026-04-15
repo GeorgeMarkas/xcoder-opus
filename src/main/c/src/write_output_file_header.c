@@ -3,7 +3,7 @@
 int write_output_file_header(AVFormatContext *output_format_ctx, JNIEnv *env) {
     const int ret = avformat_write_header(output_format_ctx, NULL);
     if (ret < 0) {
-        print_and_throw(env, "Could not write output file header (error '%s')\n",
+        fmt_msg_throw(env, "Could not write output file header (error '%s')\n",
                 av_err2str(ret));
         return ret;
     }

@@ -18,7 +18,7 @@ int encode_audio_frame(AVFrame *frame, const output_ctx *out,
     // Send the audio frame to the decoder
     ret = avcodec_send_frame(out->codec_ctx, frame);
     if (ret < 0 && ret != AVERROR_EOF) {
-        print_and_throw(env, "Could not send packet for encoding (error '%s')\n",
+        fmt_msg_throw(env, "Could not send packet for encoding (error '%s')\n",
                 av_err2str(ret));
         goto cleanup;
     }
@@ -37,7 +37,7 @@ int encode_audio_frame(AVFrame *frame, const output_ctx *out,
     }
 
     if (ret < 0) {
-        print_and_throw(env, "Could not decode frame (error '%s')\n",
+        fmt_msg_throw(env, "Could not decode frame (error '%s')\n",
                 av_err2str(ret));
         goto cleanup;
     }
@@ -48,7 +48,7 @@ int encode_audio_frame(AVFrame *frame, const output_ctx *out,
     // Write one audio frame to the output file
     ret = av_write_frame(out->fmt_ctx, output_packet);
     if (*data_present && ret < 0) {
-        print_and_throw(env, "Could not write frame (error '%s')\n",
+        fmt_msg_throw(env, "Could not write frame (error '%s')\n",
                 av_err2str(ret));
     }
 
