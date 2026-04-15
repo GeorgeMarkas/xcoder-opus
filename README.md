@@ -6,7 +6,7 @@ It uses [libav](https://trac.ffmpeg.org/wiki/Using%20libav*) and is adapted from
 ## Compatability
 - This project has been tested on JDK 21, though it most likely works with older versions too.
 - Only Linux x86-64 is supported.
-- The following libraries are required (since the native code dynamically links to them)[^1].
+- The following libraries are required (since the native code dynamically links against them)[^1].
     - libavcodec
     - libavformat
     - libavutil
